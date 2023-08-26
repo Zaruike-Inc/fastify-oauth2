@@ -74,18 +74,21 @@ function fastifyOauth2 (fastify, options, next) {
     fastify.register(require('@fastify/cookie'))
   }
 
-  const name = options.name
-  const credentials = options.credentials
-  const callbackUri = options.callbackUri
-  const callbackUriParams = options.callbackUriParams || {}
-  const tokenRequestParams = options.tokenRequestParams || {}
-  const scope = options.scope
-  const generateStateFunction = options.generateStateFunction || defaultGenerateStateFunction
-  const checkStateFunction = options.checkStateFunction || defaultCheckStateFunction
+  const {
+    name,
+    credentials,
+    callbackUri,
+    callbackUriParams = {},
+    tokenRequestParams = {},
+    scope,
+    generateStateFunction = defaultGenerateStateFunction,
+    checkStateFunction = defaultCheckStateFunction,
+    startRedirectPath,
+    tags = [],
+    schema = { tags }
+  } = options
+
   const generateCallbackUriParams = (credentials.auth && credentials.auth[kGenerateCallbackUriParams]) || defaultGenerateCallbackUriParams
-  const startRedirectPath = options.startRedirectPath
-  const tags = options.tags || []
-  const schema = options.schema || { tags }
   const cookieOpts = Object.assign({ httpOnly: true, sameSite: 'lax' }, options.cookie)
 
   function generateAuthorizationUri (request, reply) {
@@ -320,6 +323,17 @@ fastifyOauth2.EPIC_GAMES_CONFIGURATION = {
   authorizePath: '/id/authorize',
   tokenHost: 'https://api.epicgames.dev',
   tokenPath: '/epic/oauth/v1/token'
+}
+
+/**
+ * Yandex ID docs https://yandex.ru/dev/id/doc/en/
+ */
+fastifyOauth2.YANDEX_CONFIGURATION = {
+  authorizeHost: 'https://oauth.yandex.com',
+  authorizePath: '/authorize',
+  tokenHost: 'https://oauth.yandex.com',
+  tokenPath: '/token',
+  revokePath: '/revoke_token'
 }
 
 module.exports = fp(fastifyOauth2, {
